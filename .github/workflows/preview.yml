@@ -1,0 +1,34 @@
+name: preview
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Forge
+        id: forge_deploy
+        run: |
+          # Trigger the deployment on Forge
+          curl -X POST "https://forge.laravel.com/api/v1/servers/{server_id}/sites/{site_id}/deploy" \
+            -H "Authorization: Bearer ${{ secrets.FORGE_API_TOKEN }}"
+
+      - name: Set Preview URL
+        id: set_preview_url
+        run: |
+          PREVIEW_URL="https://pr-${{ github.event.pull_request.number }}.myapp.com"
+          echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
+
+      - name: Echo Preview URL
+        run: echo "Preview deployed at ${{ steps.set_preview_url.outputs.preview_url }}"
+
+      - name: Post Preview URL to PR
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            🚀 Preview deployed: [${{ steps.set_preview_url.outputs.preview_url }}](${{ steps.set_preview_url.outputs.preview_url }})
