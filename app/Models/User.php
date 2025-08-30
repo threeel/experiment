@@ -51,6 +51,7 @@ class User extends Authenticatable
             'two_factor_confirmed_at' => 'datetime',
             'delete_scheduled_at' => 'datetime',
             'delete_cancelled_at' => 'datetime',
+            'otp_enabled' => 'boolean',
         ];
     }
 

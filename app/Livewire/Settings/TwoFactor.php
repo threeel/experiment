@@ -19,7 +19,9 @@ class TwoFactor extends Component
 
     public function mount(): void
     {
-        if (config('otp.enabled')) {
+        /** @var Authenticatable&\App\Models\User $user */
+        $user = Auth::user();
+        if ($user && $user->otp_enabled) {
             abort(404);
         }
     }

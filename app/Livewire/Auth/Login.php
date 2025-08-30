@@ -34,10 +34,16 @@ class Login extends Component
      */
     public function login(): void
     {
-        if (config('otp.enabled') && ! filled($this->password)) {
-            $this->loginWithOtp();
+        // If user has OTP enabled, use OTP flow instead of password
+        $userClass = get_class(auth()->getProvider()->createModel());
+        /** @var \Illuminate\Database\Eloquent\Model|null $otpUser */
+        $otpUser = $userClass::query()->where('email', $this->email)->first();
+        if ($otpUser && property_exists($otpUser, 'otp_enabled') ? $otpUser->otp_enabled : (bool) ($otpUser->otp_enabled ?? false)) {
+            if (! filled($this->password)) {
+                $this->loginWithOtp();
 
-            return;
+                return;
+            }
         }
 
         $this->validate();
@@ -55,7 +61,7 @@ class Login extends Component
         $user = Auth::user();
 
         // If Fortify two-factor is enabled (and OTP is disabled) and user has it confirmed, redirect to the challenge
-        if (! config('otp.enabled') && $user && $user->two_factor_secret && $user->two_factor_confirmed_at) {
+        if ($user && $user->two_factor_secret && $user->two_factor_confirmed_at && ! (bool) ($user->otp_enabled ?? false)) {
             Auth::logout();
 
             // Save login state for Fortify two-factor challenge
@@ -176,7 +182,9 @@ class Login extends Component
     public function resendCode(): void
     {
         // Only act if otp flow active
-        if (! config('otp.enabled') || ! $this->otpSent) {
+        $userClass = get_class(auth()->getProvider()->createModel());
+        $otpUser = $userClass::query()->where('email', $this->email)->first();
+        if (! ($otpUser && (bool) ($otpUser->otp_enabled ?? false)) || ! $this->otpSent) {
             return;
         }
 

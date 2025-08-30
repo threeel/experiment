@@ -1,5 +1,5 @@
 <div class="flex flex-col gap-6">
-    <x-auth-header :title="__('Log in to your account')" :description="config('otp.enabled') ? __('Enter your email to receive a login code') : __('Enter your email and password below to log in')" />
+    <x-auth-header :title="__('Log in to your account')" :description="$this->otpSent ? __('Enter the code we emailed to you') : __('Enter your email and password below to log in')" />
 
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
@@ -16,7 +16,7 @@
             placeholder="email@example.com"
         />
 
-        @if (! config('otp.enabled'))
+        @if (! $this->otpSent)
             <!-- Password -->
             <div class="relative">
                 <flux:input
@@ -76,8 +76,8 @@
 
         <div class="flex items-center justify-end">
             <flux:button variant="primary" type="submit" class="w-full">
-                @if (config('otp.enabled'))
-                    {{ $this->otpSent ? __('Verify Code') : __('Send Code') }}
+                @if ($this->otpSent)
+                    {{ __('Verify Code') }}
                 @else
                     {{ __('Log in') }}
                 @endif

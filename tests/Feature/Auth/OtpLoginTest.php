@@ -8,12 +8,10 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Livewire;
 
-it('sends an OTP to existing user email when OTP is enabled', function () {
-    config()->set('otp.enabled', true);
-
+it('sends an OTP to existing user email when user has OTP enabled', function () {
     Mail::fake();
 
-    $user = User::factory()->create(['email' => 'test@example.com']);
+    $user = User::factory()->create(['email' => 'test@example.com', 'otp_enabled' => true, 'otp_driver' => 'email']);
 
     Livewire::test(Login::class)
         ->set('email', 'test@example.com')
@@ -26,11 +24,9 @@ it('sends an OTP to existing user email when OTP is enabled', function () {
 });
 
 it('logs in a user after verifying correct OTP code', function () {
-    config()->set('otp.enabled', true);
-
     Mail::fake();
 
-    $user = User::factory()->create(['email' => 'test2@example.com']);
+    $user = User::factory()->create(['email' => 'test2@example.com', 'otp_enabled' => true, 'otp_driver' => 'email']);
 
     // Step 1: request code
     $component = Livewire::test(Login::class)
@@ -53,11 +49,9 @@ it('logs in a user after verifying correct OTP code', function () {
 });
 
 it('rejects invalid or expired code', function () {
-    config()->set('otp.enabled', true);
-
     Mail::fake();
 
-    $user = User::factory()->create(['email' => 'bad@example.com']);
+    $user = User::factory()->create(['email' => 'bad@example.com', 'otp_enabled' => true, 'otp_driver' => 'email']);
 
     Livewire::test(Login::class)
         ->set('email', 'bad@example.com')
@@ -70,12 +64,11 @@ it('rejects invalid or expired code', function () {
 });
 
 it('supports resending code after throttle with countdown state', function () {
-    config()->set('otp.enabled', true);
     config()->set('otp.throttle_seconds', 5);
 
     Mail::fake();
 
-    User::factory()->create(['email' => 'again@example.com']);
+    User::factory()->create(['email' => 'again@example.com', 'otp_enabled' => true, 'otp_driver' => 'email']);
 
     $component = Livewire::test(Login::class)
         ->set('email', 'again@example.com')

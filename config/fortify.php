@@ -149,14 +149,11 @@ return [
         // Features::emailVerification(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),
-        // Only enable Fortify two-factor when OTP is disabled
-        ...(! config('otp.enabled') ? [
-            Features::twoFactorAuthentication([
-                'confirm' => true,
-                'confirmPassword' => true,
-                // 'window' => 0,
-            ]),
-        ] : []),
+        Features::twoFactorAuthentication([
+            'confirm' => true,
+            'confirmPassword' => true,
+            // 'window' => 0,
+        ]),
     ],
 
 ];

@@ -22,10 +22,9 @@ Route::middleware(['auth', 'account.not-deleting'])->group(function () {
     Route::get('settings/password', Password::class)->name('settings.password');
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
     Route::get('settings/api', \App\Livewire\Settings\Api::class)->name('settings.api');
+    Route::get('settings/security', \App\Livewire\Settings\Security::class)->name('settings.security');
 
-    if (! config('otp.enabled')) {
-        Route::get('settings/two-factor', \App\Livewire\Settings\TwoFactor::class)->name('settings.two-factor');
-    }
+    Route::get('settings/two-factor', \App\Livewire\Settings\TwoFactor::class)->name('settings.two-factor');
 
     // Deletion status page for users marked for deletion
     Route::get('account/deletion-status', DeletionStatus::class)->name('account.deletion-status');

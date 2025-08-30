@@ -1,7 +1,6 @@
-<section class="w-full">
-    @include('partials.settings-heading')
-
-    <x-settings.layout :heading="__('Two-Factor Authentication')" :subheading="__('Add additional security to your account using two factor authentication')">
+<div class="w-full">
+    <flux:heading>{{ __('Two-Factor Authentication') }}</flux:heading>
+    <flux:subheading>{{ __('Add additional security to your account using two factor authentication') }}</flux:subheading>
         @php($user = auth()->user())
 
         @if (! $user->two_factor_secret)
@@ -80,5 +79,4 @@
                 </div>
             </div>
         @endif
-    </x-settings.layout>
-</section>
+</div>
