@@ -54,8 +54,8 @@ class Login extends Component
 
         $user = Auth::user();
 
-        // If the user has confirmed two-factor authentication, redirect to the challenge
-        if ($user && $user->two_factor_secret && $user->two_factor_confirmed_at) {
+        // If Fortify two-factor is enabled (and OTP is disabled) and user has it confirmed, redirect to the challenge
+        if (! config('otp.enabled') && $user && $user->two_factor_secret && $user->two_factor_confirmed_at) {
             Auth::logout();
 
             // Save login state for Fortify two-factor challenge

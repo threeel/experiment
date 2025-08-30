@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'enabled' => env('OTP_ENABLED', true),
+    'enabled' => env('OTP_ENABLED', false),
     'default' => env('OTP_DRIVER', 'email'),
 
     'code_length' => env('OTP_CODE_LENGTH', 6),

@@ -13,6 +13,7 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\mock;
 
 it('can enable two factor and generate recovery codes', function () {
+    config()->set('otp.enabled', false);
     $user = User::factory()->create();
 
     actingAs($user);
@@ -28,6 +29,7 @@ it('can enable two factor and generate recovery codes', function () {
 });
 
 it('can confirm two factor with valid code', function () {
+    config()->set('otp.enabled', false);
     $user = User::factory()->create();
 
     // Enable first
@@ -49,6 +51,7 @@ it('can confirm two factor with valid code', function () {
 });
 
 it('regenerates recovery codes', function () {
+    config()->set('otp.enabled', false);
     $user = User::factory()->create();
 
     actingAs($user);
@@ -64,6 +67,7 @@ it('regenerates recovery codes', function () {
 });
 
 it('disables two factor', function () {
+    config()->set('otp.enabled', false);
     $user = User::factory()->create();
 
     actingAs($user);
@@ -80,6 +84,7 @@ it('disables two factor', function () {
 });
 
 it('prompts for two factor challenge on login when enabled', function () {
+    config()->set('otp.enabled', false);
     $password = 'password-123';
     $user = User::factory()->create([
         'password' => Hash::make($password),

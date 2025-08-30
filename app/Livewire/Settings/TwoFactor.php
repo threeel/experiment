@@ -17,6 +17,13 @@ class TwoFactor extends Component
 
     public bool $showingRecoveryCodes = false;
 
+    public function mount(): void
+    {
+        if (config('otp.enabled')) {
+            abort(404);
+        }
+    }
+
     public function enableTwoFactorAuthentication(TwoFactorAuthenticationProvider $provider): void
     {
         /** @var Authenticatable&\Laravel\Fortify\TwoFactorAuthenticatable $user */
