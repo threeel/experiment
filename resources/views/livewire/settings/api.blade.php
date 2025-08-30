@@ -1,4 +1,4 @@
-<x-settings.layout :heading="__('API Access')" :subheading="__('Create and manage personal access tokens for programmatic access')">
+<x-settings.layout :heading="__('Api Key Access')" :subheading="__('Create and manage personal access tokens for programmatic access')">
     <div>
         <flux:field>
             <flux:label>{{ __('Token name') }}</flux:label>
