@@ -45,6 +45,8 @@ test('email verification status is unchanged when email address is unchanged', f
 });
 
 test('user can delete their account', function () {
+    \Illuminate\Support\Facades\Bus::fake();
+
     $user = User::factory()->create();
 
     $this->actingAs($user);
@@ -55,10 +57,15 @@ test('user can delete their account', function () {
 
     $response
         ->assertHasNoErrors()
-        ->assertRedirect('/');
+        ->assertRedirect(route('account.deletion-status', absolute: false));
 
-    expect($user->fresh())->toBeNull();
-    expect(auth()->check())->toBeFalse();
+    // The account is not deleted immediately; it is scheduled for deletion
+    $fresh = $user->refresh();
+    expect($fresh->delete_scheduled_at)->not()->toBeNull();
+    expect($fresh->delete_token)->not()->toBeNull();
+
+    \Illuminate\Support\Facades\Bus::assertDispatched(\App\Jobs\SendDeletionReminderJob::class);
+    \Illuminate\Support\Facades\Bus::assertDispatched(\App\Jobs\PerformFinalDeletionJob::class);
 });
 
 test('correct password must be provided to delete account', function () {

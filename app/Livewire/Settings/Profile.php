@@ -2,9 +2,12 @@
 
 namespace App\Livewire\Settings;
 
+use App\Jobs\PerformFinalDeletionJob;
+use App\Jobs\SendDeletionReminderJob;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -70,5 +73,32 @@ class Profile extends Component
         $user->sendEmailVerificationNotification();
 
         Session::flash('status', 'verification-link-sent');
+    }
+
+    public function scheduleDeletion(): void
+    {
+        $user = Auth::user();
+
+        if ($user->delete_scheduled_at) {
+            return;
+        }
+
+        $graceDays = (int) config('account_deletion.grace_days', 30);
+        $reminderDays = (int) config('account_deletion.reminder_days_before', 3);
+
+        $user->forceFill([
+            'delete_scheduled_at' => now()->addDays($graceDays),
+            'delete_cancelled_at' => null,
+            'delete_token' => Str::random(64),
+        ])->save();
+
+        // Queue jobs
+        $reminderAt = $user->delete_scheduled_at->copy()->subDays($reminderDays);
+        if ($reminderAt->isFuture()) {
+            SendDeletionReminderJob::dispatch($user->id)->delay($reminderAt);
+        }
+        PerformFinalDeletionJob::dispatch($user->id)->delay($user->delete_scheduled_at);
+
+        $this->dispatch('deletion-scheduled');
     }
 }
