@@ -40,6 +40,24 @@ class Login extends Component
             ]);
         }
 
+        $user = Auth::user();
+
+        // If the user has confirmed two-factor authentication, redirect to the challenge
+        if ($user && $user->two_factor_secret && $user->two_factor_confirmed_at) {
+            Auth::logout();
+
+            // Save login state for Fortify two-factor challenge
+            Session::put('login.id', $user->getAuthIdentifier());
+            Session::put('login.remember', $this->remember);
+
+            RateLimiter::clear($this->throttleKey());
+            Session::regenerate();
+
+            $this->redirectRoute('two-factor.login', navigate: true);
+
+            return;
+        }
+
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
