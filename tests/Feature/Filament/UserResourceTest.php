@@ -42,7 +42,6 @@ it('creates a user via filament resource', function () {
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'secret123',
-            'passwordConfirmation' => 'secret123',
         ])
         ->call('create')
         ->assertNotified()

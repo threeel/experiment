@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use App\Models\User;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
@@ -28,7 +29,17 @@ class UserForm
                         ->email()
                         ->required()
                         ->maxLength(255)
-                        ->scopedUnique()->disabled(),
+                        ->unique(User::class, 'email', ignoreRecord: true)
+                        ->disabled(fn ($record) => filled($record)),
+
+                    TextInput::make('password')
+                        ->label('Password')
+                        ->password()
+                        ->revealable()
+                        ->required(fn ($record) => blank($record))
+                        ->minLength(8)
+                        ->dehydrated(fn ($state) => filled($state))
+                        ->visible(fn ($record) => blank($record)),
                 ])->grow()->columnSpan(4),
 
                 Section::make([
